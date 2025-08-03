@@ -6,5 +6,6 @@
         public string LASTNAME { get; set; }
         public string EMAIL { get; set; }
         public string PASSWORD { get; set; }
+        public int ROLEID { get; set; }
     }
 }

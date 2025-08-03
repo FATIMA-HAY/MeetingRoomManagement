@@ -1,19 +1,36 @@
-﻿using System.Net;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Security.AccessControl;
+using System.Security.Claims;
+using System.Text;
 using MeetingRoomManagement.DataBaseContext;
 using MeetingRoomManagement.Dtos;
 using MeetingRoomManagement.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 namespace MeetingRoomManagement.Controllers
 {
     [Route("[controller]")]
+    [Authorize]
     public class UsersController : Controller
     {
+        private readonly JwtSettings _jwtSettings;
+        private readonly StoreDBContext _storeDBContext;
+        
+        public UsersController(StoreDBContext storeDBContext,IOptions<JwtSettings> jwtsetting)
+        {
+            _jwtSettings = jwtsetting.Value;
+            _storeDBContext = storeDBContext;
+        }//constructor mnst5dmo la nmare2 nas5a men l object  l men3uzoun la 2e2dar est3mlo aw bya3tine error
         [HttpGet]
         public List<UsersDto> Get()
         {
-            var context = new StoreDBContext();
-            return context.user.Select(c => new UsersDto
+            return _storeDBContext.user.Select(c => new UsersDto
             {
                 FIRSTNAME = c.FIRSTNAME,
                 LASTNAME = c.LASTNAME,
@@ -24,23 +41,23 @@ namespace MeetingRoomManagement.Controllers
 
         public HttpStatusCode post(AddUsers user)
         {
-            var context = new StoreDBContext();
             var usero = new Users
             {
                 FIRSTNAME = user.FIRSTNAME,
                 LASTNAME = user.LASTNAME,
                 EMAIL = user.EMAIL,
-                PASSWORD = user.PASSWORD
+                PASSWORD = user.PASSWORD,
+                ROLEID=user.ROLEID
+
             };
-            context.user.Add(usero);
-            context.SaveChanges();
+            _storeDBContext.user.Add(usero);
+            _storeDBContext.SaveChanges();
             return HttpStatusCode.OK;
 
         }
         [HttpPut]//update
         public HttpStatusCode put(UpdateUsers user)
         {
-            var context = new StoreDBContext();
             var usero = new Users
             {
                 ID = user.ID,
@@ -48,17 +65,17 @@ namespace MeetingRoomManagement.Controllers
                 LASTNAME = user.LASTNAME,
                 EMAIL = user.EMAIL,
             };
-            context.user.Add(usero);
-            context.SaveChanges();
+            _storeDBContext.user.Add(usero);
+            _storeDBContext.SaveChanges();
             return HttpStatusCode.OK;
         }
         [HttpDelete]
         public HttpStatusCode delete(int id)
         {
-            var context = new StoreDBContext();
-            var usero = context.user.First(usero => usero.ID == id);
-            context.user.Remove(usero);
-            context.SaveChanges();
+            var usero = _storeDBContext.user.First(usero => usero.ID == id);
+            if (usero == null) return HttpStatusCode.NotFound;
+            _storeDBContext.user.Remove(usero);
+            _storeDBContext.SaveChanges();
             return HttpStatusCode.OK;
         }
     }
