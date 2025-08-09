@@ -30,7 +30,8 @@ namespace MeetingRoomManagement.Controllers
                 return Unauthorized("Invalid Credentials");
 
             //create lal token
-            userWithToken.AccessToken = _tokenServices.GenerateToken(user.ID);
+            var User= _dbContext.user.Include(u=>u.ROLE).FirstOrDefault(u=> u.ID==user.ID);
+            userWithToken.AccessToken = _tokenServices.GenerateToken(user.ID,User.ROLE.USERROLE);
             return userWithToken;
 
         }

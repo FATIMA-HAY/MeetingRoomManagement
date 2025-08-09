@@ -9,7 +9,7 @@ namespace MeetingRoomManagement.Services
     public class TokenServices
     {
         public readonly JwtSettings _jwtSettings;
-        public string GenerateToken(int userId)
+        public string GenerateToken(int userId,string role)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtSettings.Secretkey);
@@ -17,7 +17,8 @@ namespace MeetingRoomManagement.Services
             {
                 Subject = new System.Security.Claims.ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, Convert.ToString(userId))
+                    new Claim(ClaimTypes.NameIdentifier, Convert.ToString(userId)),
+                    new Claim(ClaimTypes.Role,role)
                 }),
                 Expires = DateTime.UtcNow.AddDays(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

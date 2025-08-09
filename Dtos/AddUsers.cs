@@ -1,4 +1,4 @@
-﻿namespace MeetingRoomManagement.Dtos
+﻿ namespace MeetingRoomManagement.Dtos
 {
     public class AddUsers
     {
