@@ -4,6 +4,7 @@ using MeetingRoomManagement.Dtos;
 using MeetingRoomManagement.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace MeetingRoomManagement.Controllers
 {
@@ -12,61 +13,91 @@ namespace MeetingRoomManagement.Controllers
     [Authorize]
     public class RoomController : Controller
     {
-      public readonly StoreDBContext storeDBContext;
-      public RoomController(StoreDBContext storeDBContext)
+        public readonly StoreDBContext storeDBContext;
+        public RoomController(StoreDBContext storeDBContext)
         {
             this.storeDBContext = storeDBContext;
         }
 
-        [HttpGet]
-        public List<RoomDto> GetRoom()
+        [HttpGet("GetRoom")]
+        public IActionResult GetRoom()
         {
-            return storeDBContext.rooms.Select(r => new RoomDto
+           var rooms= storeDBContext.rooms.Select(r => new RoomDto
             {
+                Id = r.Id,
+                Name = r.Name,
                 Capacity = r.Capacity,
                 Location = r.Location,
-                FeatureId = r.FeatureId,
+                Features=r.Feature,
                 CreatedBy = r.CreatedBy,
-
+                RoomStatus= r.RoomStatus,
             }).ToList();
+            return Ok(new
+            {
+                success = true,
+                rooms
+            });
         }
-        [HttpPost]
+        [HttpPost("AddRoom")]
         [Authorize(Roles = "Admin")]
-        public HttpStatusCode PostRoom(RoomDto room)
+        public IActionResult PostRoom(RoomDto room)
         {
+            var features = new RoomFeatures
+            {
+                Projector = room.Features.Projector,
+                VideoConference = room.Features.VideoConference,
+                WhiteBoard = room.Features.WhiteBoard
+            };
+            storeDBContext.roomFeatures.Add(features);
+            storeDBContext.SaveChanges();
             var Room = new Rooms
             {
+                Name = room.Name,
                 Capacity = room.Capacity,
                 Location = room.Location,
-                FeatureId = room.FeatureId,
+                FeatureId = features.Id,
                 CreatedBy = room.CreatedBy,
+                RoomStatus="Available"
             };
+
             storeDBContext.rooms.Add(Room);
             storeDBContext.SaveChanges();
-            return HttpStatusCode.OK;
+            return Ok(new
+            {
+                success = true,
+            });
         }
-        [HttpPut]
+        [HttpPut("UpdateRoom")]
         [Authorize(Roles = "Admin")]
         public HttpStatusCode PutRoom(int RoomId, RoomDto room)
         {
-           var Room=storeDBContext.rooms.Find(RoomId);
-           if (Room == null) return HttpStatusCode.NotFound;
-           else
+            var Room = storeDBContext.rooms.Find(RoomId);
+            if (Room == null) return HttpStatusCode.NotFound;
+            else
             {
-                var r = new Rooms
+                var features = new RoomFeatures
                 {
-                    Id=RoomId,
+                    Projector = room.Features.Projector,
+                    VideoConference = room.Features.VideoConference,
+                    WhiteBoard = room.Features.WhiteBoard
+                };
+                storeDBContext.roomFeatures.Add(features);
+                storeDBContext.SaveChanges();
+                var r= new Rooms
+                {
+                    Name = room.Name,
                     Capacity = room.Capacity,
                     Location = room.Location,
-                    FeatureId = room.FeatureId,
-                    CreatedBy= room.CreatedBy,
+                    FeatureId = features.Id,
+                    CreatedBy = room.CreatedBy,
+                    RoomStatus = "Available"
                 };
                 storeDBContext.rooms.Update(Room);
                 storeDBContext.SaveChanges();
                 return HttpStatusCode.OK;
             }
         }
-        [HttpDelete]
+        [HttpDelete("DeleteRoom")]
         [Authorize(Roles = "Admin")]
         public HttpStatusCode DeleteRoom(int RoomId)
         {
@@ -74,5 +105,10 @@ namespace MeetingRoomManagement.Controllers
             storeDBContext.rooms.Remove(room);
             return HttpStatusCode.OK;
         }
+         [HttpGet("AvailableRoom")]
+         public async Task<IActionResult> GetAvailableRooms() {
+            var CountAvailableRoom=await storeDBContext.rooms.Where(r=>r.RoomStatus=="Available").CountAsync();
+            return Ok(CountAvailableRoom);
+     }
     }
 }

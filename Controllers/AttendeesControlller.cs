@@ -21,18 +21,18 @@ namespace MeetingRoomManagement.Controllers
             StoreDBContext = storeDBContext;
         }
 
-        [HttpGet]
+        [HttpGet("GetAttendees")]
         public List<AttendeesDto>  GetAttendees()
         {
             return StoreDBContext.attendees.Select(x => new AttendeesDto
             {
-                
+                Id=x.Id ,
                 MeetingId = x.MeetingId,
                 IsPresent= x.IsPresent,
             }).ToList();
             
         }
-        [HttpPost]
+        [HttpPost("AddAttendees")]
         [Authorize(Roles = "Admin,Employee")]
         public HttpStatusCode PostAttendees(AttendeesDto attendees) {
             var MeetingCreatedById = int.Parse(User.Claims.FirstOrDefault(c=>c.Type==ClaimTypes.NameIdentifier).Value);
@@ -42,6 +42,7 @@ namespace MeetingRoomManagement.Controllers
             
             var NewAttendee = new Attendees
                 {
+                    Id = attendees.Id,
                     MeetingId = attendees.MeetingId,
                     IsPresent = attendees.IsPresent,
                 };
@@ -49,7 +50,7 @@ namespace MeetingRoomManagement.Controllers
             StoreDBContext.SaveChanges();
             return HttpStatusCode.OK;
         }
-        [HttpPut]
+        [HttpPut("UpdateAttendees")]
         [Authorize(Roles ="Admin,Employee")]
         public HttpStatusCode PutAttendees(int AttendeeId, AttendeesDto attendees)
         {
@@ -61,7 +62,7 @@ namespace MeetingRoomManagement.Controllers
             if (attendee == null) return HttpStatusCode.NotFound;
             var UpdatedAttendee = new Attendees
             {
-                Id = attendee.Id,
+                Id = attendees.Id,
                 MeetingId = attendees.MeetingId,
                 IsPresent = attendees.IsPresent,
 
@@ -70,7 +71,7 @@ namespace MeetingRoomManagement.Controllers
             StoreDBContext.SaveChanges();
             return HttpStatusCode.OK;
         }
-        [HttpDelete]
+        [HttpDelete("DeleteAttendee")]
         [Authorize(Roles = "Admin,Employee")]
         public HttpStatusCode DeleteAttendees(int AttendeeId)
         {

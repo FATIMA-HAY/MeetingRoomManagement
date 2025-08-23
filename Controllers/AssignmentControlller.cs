@@ -17,7 +17,7 @@ namespace MeetingRoomManagement.Controllers
     public class AssignmentControlller : Controller
     {
         public readonly StoreDBContext _dbContext;
-        [HttpGet]
+        [HttpGet("GetAssignments")]
         public List<AssignmentDto> GetAssignments()
         {
             return _dbContext.assignements.Select(a => new AssignmentDto
@@ -28,7 +28,7 @@ namespace MeetingRoomManagement.Controllers
                 AssignedTo = a.AssignedTo,
             }).ToList();
         }
-        [HttpPost]
+        [HttpPost("AddAssignment")]
         [Authorize(Roles = "Admin,Assignment")]
         public HttpStatusCode AddAssignment(AssignmentDto assignment)
         {
@@ -54,7 +54,7 @@ namespace MeetingRoomManagement.Controllers
             }
             return HttpStatusCode.Unauthorized;
         }
-        [HttpPut]
+        [HttpPut("UpdateAssignment")]
         [Authorize(Roles = "Admin,Employee")]
         public HttpStatusCode UpdateAssignment(int AssignmentId, AssignmentDto assignementDto)
         {
@@ -79,7 +79,7 @@ namespace MeetingRoomManagement.Controllers
             return HttpStatusCode.Unauthorized;
         }
 
-        [HttpDelete]
+        [HttpDelete("DeleteAssignment")]
         [Authorize(Roles = "Admin,Employee")]
         public HttpStatusCode DeleteAssignment(int assignmentId)
         {

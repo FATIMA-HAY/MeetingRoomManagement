@@ -2,7 +2,7 @@
 {
     public class UserWithToken:Users
     {
-        public string AccessToken { get; set; }
+        public string Token { get; set; }
         public UserWithToken(Users user)
         {
             this.ID = user.ID;

@@ -1,4 +1,5 @@
-﻿using Microsoft.Identity.Client;
+﻿using MeetingRoomManagement.Entities;
+using Microsoft.Identity.Client;
 
 namespace MeetingRoomManagement.Dtos
 {

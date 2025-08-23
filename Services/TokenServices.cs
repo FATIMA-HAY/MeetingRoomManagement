@@ -1,31 +1,48 @@
 ﻿using MeetingRoomManagement.Entities;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 
 namespace MeetingRoomManagement.Services
 {
     public class TokenServices
     {
-        public readonly JwtSettings _jwtSettings;
-        public string GenerateToken(int userId,string role)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_jwtSettings.Secretkey);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new System.Security.Claims.ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.NameIdentifier, Convert.ToString(userId)),
-                    new Claim(ClaimTypes.Role,role)
-                }),
-                Expires = DateTime.UtcNow.AddDays(1),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+        private readonly JwtSettings _jwtSettings;
 
+        public TokenServices(IOptions<JwtSettings> jwtSettings)
+        {
+            _jwtSettings = jwtSettings.Value
+                ?? throw new InvalidOperationException("JwtSettings are not configured.");
+        }
+
+        public string GenerateToken(int userId, string role)
+        {
+            var keyString = _jwtSettings.Key
+                ?? throw new InvalidOperationException("JwtSettings:Key is missing.");
+
+            var keyBytes = System.Text.Encoding.UTF8.GetBytes(keyString);
+            if (keyBytes.Length < 32)
+                throw new InvalidOperationException("Jwt key must be at least 32 bytes (256 bits) for HS256.");
+
+            var creds = new SigningCredentials(new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256);
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+                new Claim(ClaimTypes.Role, role)
             };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+
+            var token = new JwtSecurityToken(
+                issuer: _jwtSettings.Issuer,
+                audience: _jwtSettings.Audience,
+                claims: claims,
+                notBefore: DateTime.UtcNow,
+                expires: DateTime.UtcNow.AddDays(1),
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

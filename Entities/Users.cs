@@ -15,6 +15,7 @@ namespace MeetingRoomManagement.Entities
 
         public int ROLEID { get; set; }
         [ForeignKey("ROLEID")]
-        public Role ROLE { get; set; }
+        public Role ROLE { get; set; }//navigation property
+        public ICollection<Attendees> Attendee {  get; set; }
     }
 }

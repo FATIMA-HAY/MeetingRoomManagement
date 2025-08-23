@@ -1,4 +1,5 @@
-﻿using MeetingRoomManagement.Entities;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using MeetingRoomManagement.Entities;
 
 namespace MeetingRoomManagement.Dtos
 {
@@ -6,9 +7,10 @@ namespace MeetingRoomManagement.Dtos
     {
         public string Title { get; set; }
         public string Agenda { get; set; }
-        public int AttendeesNumber { get; set; }
+        public List<AttendeesDto> Attendees { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
+        public DateOnly DATE { get; set; }
         public string Status { get; set; }
         public int RoomId { get; set; }
         public int CreatedBy { get; set; }

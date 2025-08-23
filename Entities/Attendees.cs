@@ -7,9 +7,10 @@ namespace MeetingRoomManagement.Entities
     public class Attendees
     {
         public int Id { get; set; }
-        [ForeignKey("Id")]
+        public int UserId { get; set; }
+        [ForeignKey("UserId")]
         public Users Users { get; set; }
-       
+        public string Email { get; set; }
         public int MeetingId { get; set; }
         [ForeignKey("MeetingId")]
         public Meetings Meeting { get; set; }

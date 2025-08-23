@@ -7,6 +7,7 @@ namespace MeetingRoomManagement.Entities
     public class Rooms
     {
         public int Id { get; set; }
+        public string Name { get; set; }
         public int Capacity { get; set; }
         public int Location { get; set; }
         public int FeatureId { get; set; }
@@ -15,5 +16,6 @@ namespace MeetingRoomManagement.Entities
         public int CreatedBy { get; set; }
         [ForeignKey("CreatedBy")]
         public Users User { get; set; }
+        public string RoomStatus {get; set; }
     }
 }

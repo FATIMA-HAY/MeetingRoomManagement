@@ -1,4 +1,6 @@
-﻿namespace MeetingRoomManagement.Dtos
+﻿using MeetingRoomManagement.Entities;
+
+namespace MeetingRoomManagement.Dtos
 {
     public class AddMeeting
     {
@@ -6,7 +8,10 @@
         public string Agenda { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
+        public DateOnly DATE { get; set; }
+        public List<string> AttendeesEmail { get; set; }
         public int RoomId { get; set; }
         public int CreatedBy { get; set; }
+
     }
 }

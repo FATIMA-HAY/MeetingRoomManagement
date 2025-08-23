@@ -5,7 +5,9 @@ namespace MeetingRoomManagement.Dtos
 {
     public class AttendeesDto
     {
-         public int MeetingId { get; set; }
+        public int Id { get; set; }
+        public string Email { get; set; }
+        public int MeetingId { get; set; }
         public bool IsPresent { get; set; }
 
     }
