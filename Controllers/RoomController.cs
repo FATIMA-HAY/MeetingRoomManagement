@@ -40,7 +40,7 @@ namespace MeetingRoomManagement.Controllers
         }
         [HttpPost("AddRoom")]
         [Authorize(Roles = "Admin")]
-        public IActionResult PostRoom(RoomDto room)
+        public IActionResult PostRoom(int UserID,AddRoomDto room)
         {
             var features = new RoomFeatures
             {
@@ -56,7 +56,7 @@ namespace MeetingRoomManagement.Controllers
                 Capacity = room.Capacity,
                 Location = room.Location,
                 FeatureId = features.Id,
-                CreatedBy = room.CreatedBy,
+                CreatedBy = UserID,
                 RoomStatus="Available"
             };
 
@@ -69,7 +69,7 @@ namespace MeetingRoomManagement.Controllers
         }
         [HttpPut("UpdateRoom")]
         [Authorize(Roles = "Admin")]
-        public HttpStatusCode PutRoom(int RoomId, RoomDto room)
+        public HttpStatusCode PutRoom(int RoomId, AddRoomDto room)
         {
             var Room = storeDBContext.rooms.Find(RoomId);
             if (Room == null) return HttpStatusCode.NotFound;

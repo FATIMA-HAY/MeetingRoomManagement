@@ -6,17 +6,17 @@ namespace MeetingRoomManagement
 {
     public class Test
     {
-        public static void testDb()
+        public readonly StoreDBContext _dbContext;
+        public  void testDb()
         {
-            var context = new StoreDBContext();
-            context.Database.EnsureDeleted();
-            context.Database.EnsureCreated();// it creates a new db if it doesn't exist
+            _dbContext.Database.EnsureDeleted();
+            _dbContext.Database.EnsureCreated();// it creates a new db if it doesn't exist
             List<Users> user = new List<Users>()
             {
                 new Users { FIRSTNAME = "FATIMA", LASTNAME = "HAYDAR", EMAIL = "FATIMAHAY27@GMAIL.COM", PASSWORD = "FH1234" },
 
             };
-            context.SaveChanges();
+            _dbContext.SaveChanges();
 
         }
     }
