@@ -69,33 +69,37 @@ namespace MeetingRoomManagement.Controllers
         }
         [HttpPut("UpdateRoom")]
         [Authorize(Roles = "Admin")]
-        public HttpStatusCode PutRoom(int RoomId, AddRoomDto room)
+        public async Task<IActionResult> PutRoom(int RoomId, AddRoomDto room)
         {
-            var Room = storeDBContext.rooms.Find(RoomId);
-            if (Room == null) return HttpStatusCode.NotFound;
-            else
+            var existingRoom = await storeDBContext.rooms.Include(r => r.Feature).FirstOrDefaultAsync(r => r.Id == RoomId);
+
+            if (existingRoom == null)
             {
-                var features = new RoomFeatures
-                {
-                    Projector = room.Features.Projector,
-                    VideoConference = room.Features.VideoConference,
-                    WhiteBoard = room.Features.WhiteBoard
-                };
-                storeDBContext.roomFeatures.Add(features);
-                storeDBContext.SaveChanges();
-                var r= new Rooms
-                {
-                    Name = room.Name,
-                    Capacity = room.Capacity,
-                    Location = room.Location,
-                    FeatureId = features.Id,
-                    CreatedBy = room.CreatedBy,
-                    RoomStatus = "Available"
-                };
-                storeDBContext.rooms.Update(Room);
-                storeDBContext.SaveChanges();
-                return HttpStatusCode.OK;
+                // If the room doesn't exist, return a 404 Not Found response.
+                return NotFound();
             }
+
+            // Update the existing room properties with the new data from the DTO
+            existingRoom.Name = room.Name;
+            existingRoom.Capacity = room.Capacity;
+            existingRoom.Location = room.Location;
+
+            // Update the existing features
+            existingRoom.Feature.Projector = room.Features.Projector;
+            existingRoom.Feature.VideoConference = room.Features.VideoConference;
+            existingRoom.Feature.WhiteBoard = room.Features.WhiteBoard;
+
+            // Tell the context that the entity has been modified.
+            storeDBContext.rooms.Update(existingRoom);
+
+            // Save the changes to the database
+            await storeDBContext.SaveChangesAsync();
+
+            // Return a success response
+            return Ok(new
+            {
+                success = true,
+            });
         }
         [HttpDelete("DeleteRoom")]
         [Authorize(Roles = "Admin")]
@@ -103,6 +107,7 @@ namespace MeetingRoomManagement.Controllers
         {
             var room = storeDBContext.rooms.Find(RoomId);
             storeDBContext.rooms.Remove(room);
+            storeDBContext.SaveChanges();
             return HttpStatusCode.OK;
         }
          [HttpGet("AvailableRoom")]
