@@ -27,6 +27,7 @@ namespace MeetingRoomManagement.Controllers
             return StoreDBContext.attendees.Select(x => new AttendeesDto
             {
                 Id=x.Id ,
+                Email=x.Email,
                 MeetingId = x.MeetingId,
                 IsPresent= x.IsPresent,
             }).ToList();
@@ -44,7 +45,8 @@ namespace MeetingRoomManagement.Controllers
                 {
                     Id = attendees.Id,
                     MeetingId = attendees.MeetingId,
-                    IsPresent = attendees.IsPresent,
+                    Email=attendees.Email
+                    //IsPresent = attendees.IsPresent,
                 };
             StoreDBContext.attendees.Add(NewAttendee);
             StoreDBContext.SaveChanges();
@@ -64,6 +66,7 @@ namespace MeetingRoomManagement.Controllers
             {
                 Id = attendees.Id,
                 MeetingId = attendees.MeetingId,
+                Email=attendee.Email,
                 IsPresent = attendees.IsPresent,
 
             };
