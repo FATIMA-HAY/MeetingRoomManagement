@@ -5,6 +5,7 @@ namespace MeetingRoomManagement.Dtos
 {
     public class GetMeetings 
     {
+        public int Id { get; set; }
         public string Title { get; set; }
         public string Agenda { get; set; }
         public List<AttendeesDto> Attendees { get; set; }

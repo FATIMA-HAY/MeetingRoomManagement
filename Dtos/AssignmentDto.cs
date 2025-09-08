@@ -7,7 +7,6 @@ namespace MeetingRoomManagement.Dtos
     {
         public string ActionItems { get; set; }
         public DateTime DueDate { get; set; }
-        public int MomId { get; set; }
         public int AssignedTo { get; set; }
     }
 }

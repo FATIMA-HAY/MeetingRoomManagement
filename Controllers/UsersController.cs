@@ -33,6 +33,7 @@ namespace MeetingRoomManagement.Controllers
         {
             return _storeDBContext.user.Select(c => new UsersDto
             {
+                Id=c.ID,
                 FIRSTNAME = c.FIRSTNAME,
                 LASTNAME = c.LASTNAME,
                 EMAIL = c.EMAIL
@@ -42,6 +43,10 @@ namespace MeetingRoomManagement.Controllers
         [Authorize(Roles="Admin")]
         public HttpStatusCode post(AddUsers user)
         {
+            if (user.PASSWORD.IsNullOrEmpty())
+            {
+                return HttpStatusCode.BadRequest;
+            }
             var usero = new Users
             {
                 FIRSTNAME = user.FIRSTNAME,
@@ -76,6 +81,9 @@ namespace MeetingRoomManagement.Controllers
         [Authorize(Roles = "Admin")]
         public HttpStatusCode delete(int id)
         {
+            var meetings = _storeDBContext.meetings.Where(m => m.CreatedBy == id).ToList();
+            _storeDBContext.meetings.RemoveRange(meetings);
+            _storeDBContext.SaveChanges();
             var usero = _storeDBContext.user.First(usero => usero.ID == id);
             if (usero == null) return HttpStatusCode.NotFound;
             _storeDBContext.user.Remove(usero);

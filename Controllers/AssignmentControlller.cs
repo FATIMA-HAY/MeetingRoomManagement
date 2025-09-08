@@ -24,13 +24,13 @@ namespace MeetingRoomManagement.Controllers
             {
                 ActionItems = a.ActionItems,
                 DueDate = a.DueDate,
-                MomId = a.MomId,
+                //MomId = a.MomId,
                 AssignedTo = a.AssignedTo,
             }).ToList();
         }
         [HttpPost("AddAssignment")]
-        [Authorize(Roles = "Admin,Assignment")]
-        public HttpStatusCode AddAssignment(AssignmentDto assignment)
+        [Authorize(Roles = "Admin,Employee")]
+      /*  public HttpStatusCode AddAssignment(AssignmentDto assignment)
         {
             var userId = int.Parse(User.Claims.FirstOrDefault(u => u.Type == ClaimTypes.NameIdentifier).Value);
             var Assignment = _dbContext.assignements.Include(m => m.Minute).FirstOrDefault(m => m.Id == assignment.MomId);
@@ -45,7 +45,7 @@ namespace MeetingRoomManagement.Controllers
                 {
                     ActionItems = assignment.ActionItems,
                     DueDate = assignment.DueDate,
-                    MomId = assignment.MomId,
+                    //MomId = assignment.MomId,
                     AssignedTo = assignment.AssignedTo,
                 };
                 _dbContext.assignements.Add(Newassignment);
@@ -53,10 +53,10 @@ namespace MeetingRoomManagement.Controllers
                 return HttpStatusCode.OK;
             }
             return HttpStatusCode.Unauthorized;
-        }
+        }*/
         [HttpPut("UpdateAssignment")]
         [Authorize(Roles = "Admin,Employee")]
-        public HttpStatusCode UpdateAssignment(int AssignmentId, AssignmentDto assignementDto)
+      /*  public HttpStatusCode UpdateAssignment(int AssignmentId, AssignmentDto assignementDto)
         {
             var UserId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
             var assignements = _dbContext.assignements.Include(m => m.Minute).FirstOrDefault(m => m.Id == assignementDto.MomId);
@@ -77,7 +77,7 @@ namespace MeetingRoomManagement.Controllers
                 return HttpStatusCode.OK;
             }
             return HttpStatusCode.Unauthorized;
-        }
+        }*/
 
         [HttpDelete("DeleteAssignment")]
         [Authorize(Roles = "Admin,Employee")]

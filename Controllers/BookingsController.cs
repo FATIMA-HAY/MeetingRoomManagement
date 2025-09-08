@@ -26,7 +26,7 @@ namespace MeetingRoomManagement.Controllers
         {
             var meetings = _storeDBContext.meetings.Include(m => m.Attendee).Select(m => new GetMeetings
             {
-                //Id = m.Id,
+                Id = m.Id,
                 Title = m.Title,
                 Agenda = m.Agenda,
                 StartTime = m.StartTime,
@@ -36,7 +36,7 @@ namespace MeetingRoomManagement.Controllers
                 CreatedBy = m.CreatedBy,
                 Attendees = m.Attendee.Select(a => new AttendeesDto
                 {
-                    Id = a.Id,
+                    Id = a.UserId,
                     Email = a.Email,
                 }).ToList()
             });
@@ -69,15 +69,15 @@ namespace MeetingRoomManagement.Controllers
         [HttpGet("Total-Meeting")]
         public async Task<IActionResult> GetTotalMeeting()
         {
-            var count= await _storeDBContext.meetings.Where(m=>m.EndTime> DateTime.Now).CountAsync();
+            var count= await _storeDBContext.meetings.Where(m=>m.EndTime> DateTime.Today).CountAsync();
             return Ok(count);
         }//countAsync():3achen ma y3tine kel l m3lumet y3tine bas l count
         [HttpGet("Todays-Meeting")]
         public async Task<ActionResult<int>> GetTodaysMeeting()
         {
             var today = DateTime.Today;
-            var start = today.AddHours(12);
-            var end = today.AddHours(24);
+            var start = DateTime.Today;
+            var end =start.AddDays(1);
             //men 12 duhur la 12 duhur tene yom
             var count = await _storeDBContext.meetings
                             .Where(m => m.StartTime >= start && m.EndTime < end).CountAsync();
@@ -108,7 +108,12 @@ namespace MeetingRoomManagement.Controllers
         {
             var room = _storeDBContext.rooms.FirstOrDefault(r => r.Id == meet.RoomId);
             if (room == null) return HttpStatusCode.NotFound;
-            if (room.RoomStatus == "Reserved") return HttpStatusCode.BadRequest;
+            if (room.RoomStatus == "Booked")
+            {
+                var Meeting=_storeDBContext.meetings.Where(m=>m.RoomId==room.Id && m.StartTime<=DateTime.Now && m.EndTime>=DateTime.Now).FirstOrDefault();
+                if(Meeting !=null)return HttpStatusCode.BadRequest;
+
+            }
             var attendees=_storeDBContext.attendees.Where(a=>meet.AttendeesEmail.Contains(a.Email)).ToList();
             var meeting = new Meetings
             {
@@ -121,7 +126,7 @@ namespace MeetingRoomManagement.Controllers
                 RoomId = meet.RoomId,
                 Attendee=attendees
             };
-           // _storeDBContext.attendees.AddRange(attendees);
+            _storeDBContext.attendees.AddRange(attendees);
             _storeDBContext.meetings.Add(meeting);
             room.RoomStatus = "Booked";
             _storeDBContext.rooms.Update(room);
@@ -159,21 +164,24 @@ namespace MeetingRoomManagement.Controllers
 
 
         }
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteBooking")]
         [Authorize(Roles = "Admin,Employee")]
         public HttpStatusCode RemoveBooking(int id)
         {
             var booking = _storeDBContext.meetings.Find(id);
             if (booking == null) return HttpStatusCode.NotFound;
+            var room = _storeDBContext.rooms.FirstOrDefault(r => r.Id == booking.RoomId);
             //jib id l user l 3m y3mil l request
             var currentUserID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (booking.Id.ToString() == currentUserID)
-            {
+            if (booking.CreatedBy.ToString() == currentUserID)
+            {   
                 _storeDBContext.meetings.Remove(booking);
+                 room.RoomStatus = "Available";
+                _storeDBContext.rooms.Update(room);
                 _storeDBContext.SaveChanges();
                 return HttpStatusCode.OK;
-            };
-            return HttpStatusCode.NotFound;
+            }
+            else return HttpStatusCode.NotFound;
             
         }
     }

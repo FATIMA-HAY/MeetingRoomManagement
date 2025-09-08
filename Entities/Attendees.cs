@@ -1,12 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace MeetingRoomManagement.Entities
 {
-    [PrimaryKey("Id")]
+    [PrimaryKey("UserId")]
     public class Attendees
     {
-        public int Id { get; set; }
         public int UserId { get; set; }
         [ForeignKey("UserId")]
         public Users Users { get; set; }
@@ -16,6 +16,7 @@ namespace MeetingRoomManagement.Entities
         public Meetings Meeting { get; set; }
        
         public bool IsPresent { get; set; }
+        public ICollection<Assignements> assignements { get; set; }
 
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Threading.Tasks;
 using MeetingRoomManagement.DataBaseContext;
 using MeetingRoomManagement.Dtos;
 using MeetingRoomManagement.Entities;
@@ -22,6 +23,7 @@ namespace MeetingRoomManagement.Controllers
         [HttpGet("GetRoom")]
         public IActionResult GetRoom()
         {
+           var now = DateTime.Now;
            var rooms= storeDBContext.rooms.Select(r => new RoomDto
             {
                 Id = r.Id,
@@ -30,12 +32,32 @@ namespace MeetingRoomManagement.Controllers
                 Location = r.Location,
                 Features=r.Feature,
                 CreatedBy = r.CreatedBy,
-                RoomStatus= r.RoomStatus,
+                RoomStatus= storeDBContext.meetings.Any(m=>m.RoomId==r.Id && m.StartTime<=now && m.EndTime>=now)?"Booked":"Available",
             }).ToList();
+            storeDBContext.SaveChanges();
             return Ok(new
             {
                 success = true,
                 rooms
+            });
+        }
+        [HttpGet("MostUsedRoom")]
+        public async Task<IActionResult> MostUsedRoom()
+        {
+            var mostusedroom= storeDBContext.meetings.GroupBy(m => m.RoomId).Select(g => new
+            {
+                RoomId = g.Key,
+                UsageCount=g.Count(),
+            })
+                .OrderByDescending(m => m.UsageCount).FirstOrDefault();
+            var room = await storeDBContext.rooms.Where(r => r.Id == mostusedroom.RoomId).Select(r => new RoomDto
+            {
+                Name = r.Name,
+            }).FirstOrDefaultAsync();
+            return Ok(new
+            {
+                success = true,
+                room
             });
         }
         [HttpPost("AddRoom")]

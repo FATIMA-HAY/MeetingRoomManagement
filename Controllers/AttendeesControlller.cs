@@ -26,7 +26,7 @@ namespace MeetingRoomManagement.Controllers
         {
             return StoreDBContext.attendees.Select(x => new AttendeesDto
             {
-                Id=x.Id ,
+                Id=x.UserId ,
                 Email=x.Email,
                 MeetingId = x.MeetingId,
                 IsPresent= x.IsPresent,
@@ -43,7 +43,7 @@ namespace MeetingRoomManagement.Controllers
             
             var NewAttendee = new Attendees
                 {
-                    Id = attendees.Id,
+                    UserId = attendees.Id,
                     MeetingId = attendees.MeetingId,
                     Email=attendees.Email
                     //IsPresent = attendees.IsPresent,
@@ -60,11 +60,11 @@ namespace MeetingRoomManagement.Controllers
             var meeting=StoreDBContext.meetings.FirstOrDefault(m=> m.Id==attendees.MeetingId);
             if(meeting == null)return HttpStatusCode.NotFound;
             if(meeting.CreatedBy != MeetingCreatedById) return HttpStatusCode.Unauthorized;
-            var attendee=StoreDBContext.attendees.FirstOrDefault(c=> c.Id == AttendeeId);
+            var attendee=StoreDBContext.attendees.FirstOrDefault(c=> c.UserId == AttendeeId);
             if (attendee == null) return HttpStatusCode.NotFound;
             var UpdatedAttendee = new Attendees
             {
-                Id = attendees.Id,
+                UserId = attendees.Id,
                 MeetingId = attendees.MeetingId,
                 Email=attendee.Email,
                 IsPresent = attendees.IsPresent,
@@ -79,7 +79,7 @@ namespace MeetingRoomManagement.Controllers
         public HttpStatusCode DeleteAttendees(int AttendeeId)
         {
             var UserId = int.Parse(User.Claims.FirstOrDefault(u => u.Type == ClaimTypes.NameIdentifier).Value);
-            var attendee= StoreDBContext.attendees.Include(a=>a.Meeting).FirstOrDefault(a=>a.Id==AttendeeId);
+            var attendee= StoreDBContext.attendees.Include(a=>a.Meeting).FirstOrDefault(a=>a.UserId==AttendeeId);
             if(attendee == null) return HttpStatusCode.NotFound;
             var createdById=attendee.Meeting.CreatedBy;
             if (createdById != UserId) return HttpStatusCode.Unauthorized;

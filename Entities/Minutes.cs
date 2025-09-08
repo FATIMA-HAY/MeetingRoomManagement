@@ -11,8 +11,10 @@ namespace MeetingRoomManagement.Entities
         [ForeignKey("MeetingId")]
         public Meetings Meeting { get; set; }
         public string PointOfDisc {  get; set; }
-        public DateTime DueDate { get; set; }
+        //public DateOnly DueDate { get; set; }
         public string Summary { get; set; }
+        public ICollection<Assignements> Assignments { get; set; }
+        public ICollection<Attendees> Attendees{ get; set; }
 
     }
 }
