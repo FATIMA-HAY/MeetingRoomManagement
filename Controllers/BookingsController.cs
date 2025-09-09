@@ -83,6 +83,19 @@ namespace MeetingRoomManagement.Controllers
                             .Where(m => m.StartTime >= start && m.EndTime < end).CountAsync();
             return Ok(count);
         }
+        [HttpGet("MeetingsPerWeek")]
+        public async Task<ActionResult> GetMeetingsPerWeek()
+        {
+            var today=DateTime.Today;
+            var WeekStart = today.AddDays(-7);
+            var SummaryOfMeetings = await _storeDBContext.meetings.Where(m => m.StartTime >= WeekStart && m.StartTime<=today).Select(m=> new GetMeetings
+            {
+                Title=m.Title,
+                DATE=m.Date
+            }).ToListAsync();
+            if(SummaryOfMeetings==null)return Ok("No Meetings");
+            return Ok(SummaryOfMeetings);
+        }
         [HttpGet("Upcoming-Meetings")]
         public async Task<IActionResult> GetUpcomingMeeting()
         {
