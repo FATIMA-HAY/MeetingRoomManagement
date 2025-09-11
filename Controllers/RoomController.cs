@@ -128,6 +128,7 @@ namespace MeetingRoomManagement.Controllers
         public HttpStatusCode DeleteRoom(int RoomId)
         {
             var room = storeDBContext.rooms.Find(RoomId);
+            if (room == null) { return HttpStatusCode.NotFound; }
             storeDBContext.rooms.Remove(room);
             storeDBContext.SaveChanges();
             return HttpStatusCode.OK;

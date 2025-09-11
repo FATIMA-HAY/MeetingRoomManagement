@@ -69,7 +69,7 @@ namespace MeetingRoomManagement.Controllers
         [HttpGet("Total-Meeting")]
         public async Task<IActionResult> GetTotalMeeting()
         {
-            var count= await _storeDBContext.meetings.Where(m=>m.EndTime> DateTime.Today).CountAsync();
+            var count= await _storeDBContext.meetings.Where(m=>m.EndTime> DateTime.Now).CountAsync();
             return Ok(count);
         }//countAsync():3achen ma y3tine kel l m3lumet y3tine bas l count
         [HttpGet("Todays-Meeting")]
@@ -91,7 +91,7 @@ namespace MeetingRoomManagement.Controllers
             var SummaryOfMeetings = await _storeDBContext.meetings.Where(m => m.StartTime >= WeekStart && m.StartTime<=today).Select(m=> new GetMeetings
             {
                 Title=m.Title,
-                DATE=m.Date
+                StartTime=m.StartTime
             }).ToListAsync();
             if(SummaryOfMeetings==null)return Ok("No Meetings");
             return Ok(SummaryOfMeetings);
